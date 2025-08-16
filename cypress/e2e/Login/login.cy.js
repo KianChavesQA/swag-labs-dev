@@ -63,7 +63,6 @@ describe("Testes de Login - Swag Labs", () => {
   });
 
   it("TC-LOGIN-007 - Empty Username", () => {
-    cy.get(selectorsList.userName).type(userData.userEmpty.password);
     cy.get(selectorsList.loginButton).click();
     cy.get(selectorsList.errorMessage).should(
       "contain",
