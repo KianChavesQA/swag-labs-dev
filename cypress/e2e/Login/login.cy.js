@@ -1,11 +1,9 @@
 import userData from "../../fixtures/users/userData.json";
 describe("Testes de Login - Swag Labs", () => {
   beforeEach(() => {
-    // Executa antes de cada caso de teste, acessando a página de login
     cy.visit("/index.html");
   });
 
-  // Seletores de elementos deixei aqui para facilitar o entendimento com fixtures
   const selectorsList = {
     userName: "#user-name",
     password: "#password",
@@ -13,7 +11,7 @@ describe("Testes de Login - Swag Labs", () => {
     errorMessage: '[data-test="error"]',
   };
 
-  it("TC-LOGIN-001 - Autenticação com usuário válido", () => {
+  it("TC-LOGIN-001 - Standard User", () => {
     cy.get(selectorsList.userName).type(userData.userStandard.username); // insere username ** é esperadoa
     cy.get(selectorsList.password).type(userData.userStandard.password); // insere senha
     cy.get(selectorsList.loginButton).click(); // clica no botão de login
@@ -21,7 +19,7 @@ describe("Testes de Login - Swag Labs", () => {
     cy.get(".product_label").should("contain", "Products"); // verifica se fez o redirecionamento
   });
 
-  it("TC-LOGIN-002 - Usuário bloqueado", () => {
+  it("TC-LOGIN-002 - Locked out User", () => {
     cy.get(selectorsList.userName).type(userData.userLocked.username);
     cy.get(selectorsList.password).type(userData.userLocked.password);
     cy.get(selectorsList.loginButton).click();
@@ -31,23 +29,22 @@ describe("Testes de Login - Swag Labs", () => {
     );
   });
 
-  it("TC-LOGIN-003 - Usuário problemático", () => {
+  it("TC-LOGIN-003 - Issue User", () => {
     cy.get(selectorsList.userName).type(userData.userProblem.username);
     cy.get(selectorsList.password).type(userData.userProblem.password);
     cy.get(selectorsList.loginButton).click();
     cy.url().should("include", "/inventory.html");
-    // Opcional: aqui você pode verificar se há imagens quebradas
   });
 
-  it("TC-LOGIN-004 - Usuário com lentidão", () => {
+  it("TC-LOGIN-004 - Low Performance User", () => {
     cy.get(selectorsList.userName).type(userData.userPerformance.username);
     cy.get(selectorsList.password).type(userData.userPerformance.password);
     cy.get(selectorsList.loginButton).click();
-    // Verifica que mesmo com lentidão, a página final foi carregada
+    // timeout aumentado para 10 segundos devido a lentidão proposital do usuário
     cy.url({ timeout: 10000 }).should("include", "/inventory.html");
   });
 
-  it("TC-LOGIN-005 - Campo de username e password invalidos", () => {
+  it("TC-LOGIN-005 - Invalid username and password", () => {
     cy.get(selectorsList.userName).type(userData.userInvalid.username);
     cy.get(selectorsList.password).type(userData.userInvalid.password);
     cy.get(selectorsList.loginButton).click();
@@ -57,7 +54,7 @@ describe("Testes de Login - Swag Labs", () => {
     );
   });
 
-  it("TC-LOGIN-006 - Campo de username e password em branco", () => {
+  it("TC-LOGIN-006 - Empty Username and Password", () => {
     cy.get(selectorsList.loginButton).click();
     cy.get(selectorsList.errorMessage).should(
       "contain",
@@ -65,25 +62,25 @@ describe("Testes de Login - Swag Labs", () => {
     );
   });
 
-  it("TC-LOGIN-007 - Campo de username em branco", () => {
-    cy.get("#password").type("secret_sauce");
-    cy.get("#login-button").click();
-    cy.get('[data-test="error"]').should(
+  it("TC-LOGIN-007 - Empty Username", () => {
+    cy.get(selectorsList.userName).type(userData.userEmpty.password);
+    cy.get(selectorsList.loginButton).click();
+    cy.get(selectorsList.errorMessage).should(
       "contain",
       "Epic sadface: Username is required"
     );
   });
 
-  it("TC-LOGIN-008 - Senha Incorreta", () => {
-    cy.get("#user-name").type("standard_user");
-    cy.get("#login-button").click();
-    cy.get('[data-test="error"]').should(
+  it("TC-LOGIN-008 - Invalid password", () => {
+    cy.get(selectorsList.userName).type("standard_user");
+    cy.get(selectorsList.loginButton).click();
+    cy.get(selectorsList.errorMessage).should(
       "contain",
       "Epic sadface: Password is required"
     );
   });
 
-  it("TC-LOGIN-009 - Usuário e senha inválidos", () => {
+  it("TC-LOGIN-009 - Invalid user and password", () => {
     cy.get(selectorsList.userName).type(userData.userInvalidPassword.username);
     cy.get(selectorsList.password).type(userData.userInvalidPassword.password);
     cy.get(selectorsList.loginButton).click();
@@ -93,7 +90,7 @@ describe("Testes de Login - Swag Labs", () => {
     );
   });
 
-  it("TC-LOGIN-010 - Senha em branco", () => {
+  it("TC-LOGIN-010 - Empty Password", () => {
     cy.get(selectorsList.userName).type(userData.userEmptyPassword.username);
     cy.get(selectorsList.loginButton).click();
     cy.get(selectorsList.errorMessage).should(
@@ -101,8 +98,7 @@ describe("Testes de Login - Swag Labs", () => {
       "Epic sadface: Password is required"
     );
   });
-
-  it("TC-LOGIN-011 - Usuário em branco", () => {
+  it("TC-LOGIN-011 - Empty Username", () => {
     cy.get(selectorsList.password).type(userData.userEmptyUsername.password);
     cy.get(selectorsList.loginButton).click();
     cy.get(selectorsList.errorMessage).should(

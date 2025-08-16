@@ -3,7 +3,7 @@ on: push
 jobs:
   cypress-run:
     runs-on: ubuntu-24.04
-    name: Artifacts
+    name: Login Tests
     steps:
       - uses: actions/checkout@v4
       - uses: cypress-io/github-action@v6
