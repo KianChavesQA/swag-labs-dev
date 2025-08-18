@@ -12,11 +12,11 @@ describe("Testes de Login - Swag Labs", () => {
   };
 
   it("TC-LOGIN-001 - Standard User", () => {
-    cy.get(selectorsList.userName).type(userData.userStandard.username); // insere username ** é esperadoa
-    cy.get(selectorsList.password).type(userData.userStandard.password); // insere senha
-    cy.get(selectorsList.loginButton).click(); // clica no botão de login
-    cy.location("pathname").should("equals", "/v1/inventory.html"); // verifica redirecionamento maneira ideal
-    cy.get(".product_label").should("contain", "Products"); // verifica se fez o redirecionamento
+    cy.get(selectorsList.userName).type(userData.userStandard.username);
+    cy.get(selectorsList.password).type(userData.userStandard.password);
+    cy.get(selectorsList.loginButton).click();
+    cy.location("pathname").should("equals", "/v1/inventory.html");
+    cy.get(".product_label").should("contain", "Products");
   });
 
   it("TC-LOGIN-002 - Locked out User", () => {
@@ -40,7 +40,6 @@ describe("Testes de Login - Swag Labs", () => {
     cy.get(selectorsList.userName).type(userData.userPerformance.username);
     cy.get(selectorsList.password).type(userData.userPerformance.password);
     cy.get(selectorsList.loginButton).click();
-    // timeout aumentado para 10 segundos devido a lentidão proposital do usuário
     cy.url({ timeout: 10000 }).should("include", "/inventory.html");
   });
 
