@@ -1,107 +1,87 @@
 import userData from "../../fixtures/users/userData.json";
+import LoginPage from "../../pageObjects/loginPage";
+import ProductsPage from "../../pageObjects/productsPage";
+
+const loginPage = new LoginPage();
+const productsPage = new ProductsPage();
+
 describe("Testes de Login - Swag Labs", () => {
   beforeEach(() => {
-    cy.visit("/index.html");
+    loginPage.visit();
+    cy.viewport(1280, 720); // Set viewport size for consistent testing
   });
 
-  const selectorsList = {
-    userName: "#user-name",
-    password: "#password",
-    loginButton: "#login-button",
-    errorMessage: '[data-test="error"]',
-  };
-
   it("TC-LOGIN-001 - Standard User", () => {
-    cy.get(selectorsList.userName).type(userData.userStandard.username);
-    cy.get(selectorsList.password).type(userData.userStandard.password);
-    cy.get(selectorsList.loginButton).click();
-    cy.location("pathname").should("equals", "/v1/inventory.html");
-    cy.get(".product_label").should("contain", "Products");
+    loginPage.enterUsername(userData.userStandard.username);
+    loginPage.enterPassword(userData.userStandard.password);
+    loginPage.clickLogin();
+    productsPage.verifyLoginSuccess();
   });
 
   it("TC-LOGIN-002 - Locked out User", () => {
-    cy.get(selectorsList.userName).type(userData.userLocked.username);
-    cy.get(selectorsList.password).type(userData.userLocked.password);
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Sorry, this user has been locked out."
-    );
+    loginPage.enterUsername(userData.userLocked.username);
+    loginPage.enterPassword(userData.userLocked.password);
+    loginPage.clickLogin();
+    loginPage
+      .getErrorMessage()
+      .should("contain", "Epic sadface: Sorry, this user has been locked out.");
   });
 
   it("TC-LOGIN-003 - Issue User", () => {
-    cy.get(selectorsList.userName).type(userData.userProblem.username);
-    cy.get(selectorsList.password).type(userData.userProblem.password);
-    cy.get(selectorsList.loginButton).click();
-    cy.url().should("include", "/inventory.html");
+    loginPage.enterUsername(userData.userProblem.username);
+    loginPage.enterPassword(userData.userProblem.password);
+    loginPage.clickLogin();
+    productsPage.verifyLoginSuccess();
   });
 
   it("TC-LOGIN-004 - Low Performance User", () => {
-    cy.get(selectorsList.userName).type(userData.userPerformance.username);
-    cy.get(selectorsList.password).type(userData.userPerformance.password);
-    cy.get(selectorsList.loginButton).click();
-    cy.url({ timeout: 10000 }).should("include", "/inventory.html");
+    loginPage.enterUsername(userData.userPerformance.username);
+    loginPage.enterPassword(userData.userPerformance.password);
+    loginPage.clickLogin();
+    productsPage.verifyLoginSuccess();
   });
 
   it("TC-LOGIN-005 - Invalid username and password", () => {
-    cy.get(selectorsList.userName).type(userData.userInvalid.username);
-    cy.get(selectorsList.password).type(userData.userInvalid.password);
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Username and password do not match any user in this service"
-    );
+    loginPage.enterUsername(userData.userInvalid.username);
+    loginPage.enterPassword(userData.userInvalid.password);
+    loginPage.clickLogin();
+    loginPage
+      .getErrorMessage()
+      .should(
+        "contain",
+        "Epic sadface: Username and password do not match any user in this service"
+      );
   });
 
   it("TC-LOGIN-006 - Empty Username and Password", () => {
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Username is required"
-    );
+    loginPage.clickLogin();
+    loginPage
+      .getErrorMessage()
+      .should("contain", "Epic sadface: Username is required");
   });
 
   it("TC-LOGIN-007 - Empty Username", () => {
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Username is required"
-    );
+    loginPage.enterPassword(userData.userEmptyUsername.password);
+    loginPage.clickLogin();
+    loginPage
+      .getErrorMessage()
+      .should("contain", "Epic sadface: Username is required");
   });
 
-  it("TC-LOGIN-008 - Invalid password", () => {
-    cy.get(selectorsList.userName).type("standard_user");
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Password is required"
-    );
+  it("TC-LOGIN-008 - Empty Password", () => {
+    loginPage.enterUsername(userData.userEmptyPassword.username);
+    loginPage.clickLogin();
+    loginPage
+      .getErrorMessage()
+      .should("contain", "Epic sadface: Password is required");
   });
 
-  it("TC-LOGIN-009 - Invalid user and password", () => {
-    cy.get(selectorsList.userName).type(userData.userInvalidPassword.username);
-    cy.get(selectorsList.password).type(userData.userInvalidPassword.password);
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Username and password do not match any user in this service"
-    );
-  });
-
-  it("TC-LOGIN-010 - Empty Password", () => {
-    cy.get(selectorsList.userName).type(userData.userEmptyPassword.username);
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Password is required"
-    );
-  });
-  it("TC-LOGIN-011 - Empty Username", () => {
-    cy.get(selectorsList.password).type(userData.userEmptyUsername.password);
-    cy.get(selectorsList.loginButton).click();
-    cy.get(selectorsList.errorMessage).should(
-      "contain",
-      "Epic sadface: Username is required"
-    );
+  it("TC-LOGIN-009 - Invalid password", () => {
+    loginPage.enterUsername(userData.userInvalidPassword.username);
+    loginPage.enterPassword(userData.userInvalidPassword.password);
+    loginPage.clickLogin();
+    loginPage
+      .getErrorMessage()
+      .should("contain", "Username and password do not match any user in this service");
   });
 });
